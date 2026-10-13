@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:version='2' class='v2' expr:dir='data:blog.languageDirection' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+<head>
+<meta charset='utf-8'/>
+<meta content='width=device-width, initial-scale=1' name='viewport'/>
+<title>Sáng Trần Viết</title>
+<link href='https://fonts.googleapis.com' rel='preconnect'/>
+<link crossorigin='crossorigin' href='https://fonts.gstatic.com' rel='preconnect'/>
+<link href='https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200;300;500;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap' rel='stylesheet'/>
+<b:skin><![CDATA[
+/* giao diện được dựng trong thẻ style bên dưới */
+]]></b:skin>
+<style><![CDATA[
+#navbar, #navbar-iframe, .Navbar { display: none !important; height: 0 !important; }
+
+/*
+  Mục đích: nơi đặt bài gốc của Sáng. Người đọc tự soi, không bị kéo đi đâu
+  (không CTA, không bài liên quan, không khoe chức danh hay số liệu).
+  Ý tưởng: một căn phòng yên. Tường vữa xám ấm, bóng ô cửa đổ lên tường thành những
+  mảng sáng, trôi rất chậm khi người đọc cuộn trang (xa hơn thì trôi chậm hơn).
+  Không màu nhấn: chiều sâu đến từ sáng, bóng, hạt vữa và độ mảnh của chữ.
+  Màu và font là TẠM, chưa lấy từ DESIGN.md của Đất Thủ (file chưa có trong thư mục kỹ năng).
+*/
+:root {
+  --bg: #CDC9BF;
+  --ink: #1D1B18;
+  --ink-soft: #4A463F;
+  --rule: rgba(29, 27, 24, 0.2);
+  --light-a: rgba(251, 247, 238, 0.9);
+  --light-b: rgba(251, 247, 238, 0.32);
+  --shade: rgba(32, 29, 24, 0.22);
+  --cast: rgba(20, 18, 14, 0.16);
+  --grain-op: 0.07;
+  --grain-inv: none;
+  --font-display: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-body: "Source Serif 4", Georgia, serif;
+  --measure: 35rem;
+  --indent: clamp(0rem, 14vw, 10rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151412;
+    --ink: #ECE7DC;
+    --ink-soft: #A7A195;
+    --rule: rgba(236, 231, 220, 0.16);
+    --light-a: rgba(255, 224, 166, 0.11);
+    --light-b: rgba(255, 224, 166, 0.02);
+    --shade: rgba(0, 0, 0, 0.55);
+    --cast: rgba(255, 224, 166, 0.08);
+    --grain-op: 0.05;
+    --grain-inv: invert(1);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151412;
+  --ink: #ECE7DC;
+  --ink-soft: #A7A195;
+  --rule: rgba(236, 231, 220, 0.16);
+  --light-a: rgba(255, 224, 166, 0.11);
+  --light-b: rgba(255, 224, 166, 0.02);
+  --shade: rgba(0, 0, 0, 0.55);
+  --cast: rgba(255, 224, 166, 0.08);
+  --grain-op: 0.05;
+  --grain-inv: invert(1);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.1875rem;
+  line-height: 1.7;
+  padding: 0;
+}
+a { color: inherit; }
+a:focus-visible, button:focus-visible, textarea:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* Căn phòng: tường, mảng sáng, hạt vữa */
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  --bx: 0px; --by: 0px; --bx2: 0px; --by2: 0px;
+}
+.beam {
+  position: absolute;
+  right: -6vw;
+  top: -12vh;
+  width: min(72vw, 62rem);
+  height: 124vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1.7rem;
+  transform-origin: top right;
+}
+.beam i { display: block; background: linear-gradient(165deg, var(--light-a), var(--light-b)); }
+.beam.far {
+  filter: blur(22px);
+  opacity: 0.6;
+  transform: translate3d(var(--bx2), var(--by2), 0) skew(-16deg, 8deg) scale(1.06);
+}
+.beam.near {
+  filter: blur(1.4px);
+  transform: translate3d(var(--bx), var(--by), 0) skew(-16deg, 8deg);
+}
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 78% 14%, transparent 34%, var(--shade) 100%);
+}
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--grain-op);
+  filter: var(--grain-inv);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  z-index: 1;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  padding-block: 1.5rem 3rem;
+}
+.cast { text-shadow: 0.05em 0.08em 0.22em var(--cast); }
+
+/* Đầu trang */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+}
+.top a { text-decoration: none; font-weight: 500; letter-spacing: 0.02em; }
+.top span { color: var(--ink-soft); font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.6875rem; }
+
+.label {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+}
+
+/* Trang chủ */
+.hero { padding-block: clamp(5rem, 16vh, 9rem) clamp(4rem, 12vh, 7rem); margin-left: var(--indent); }
+.hero h1 {
+  max-width: 17ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.lead { margin-left: var(--indent); padding-bottom: 3.5rem; }
+.lead a { display: block; max-width: var(--measure); text-decoration: none; }
+.lead h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.lead p { margin: 0 0 1.25rem; color: var(--ink-soft); }
+.more {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+}
+.lead a:hover h2 { opacity: 0.7; }
+
+.filters { margin-left: var(--indent); display: flex; flex-wrap: wrap; gap: 1.25rem; padding-bottom: 1.5rem; }
+.chip {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  padding: 0 0 2px;
+  background: none;
+  color: var(--ink-soft);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+.list { list-style: none; margin: 0 0 0 var(--indent); padding: 0; max-width: 40rem; }
+.row a {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+}
+.row time {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.35rem;
+}
+.row h3 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.row a:hover h3 { opacity: 0.7; }
+
+.note {
+  margin: 2.5rem 0 0 var(--indent);
+  max-width: var(--measure);
+  font-size: 0.9375rem;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* Trang bài */
+.back {
+  display: inline-block;
+  margin-top: clamp(3rem, 9vh, 5rem);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.back:hover { color: var(--ink); }
+.post { margin-left: var(--indent); padding-block: 2.5rem 0; }
+.post .meta {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 1.5rem;
+}
+.post h1 {
+  max-width: 18ch;
+  margin: 0 0 3rem;
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: clamp(2.1rem, 6.5vw, 4rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.body { max-width: var(--measure); }
+.body p { margin: 0 0 1.4rem; }
+.body p:first-child { font-size: 1.3rem; line-height: 1.6; }
+.body p.beat { font-style: italic; color: var(--ink-soft); }
+
+.own { margin-top: 4rem; max-width: var(--measure); }
+.own textarea {
+  display: block;
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.5rem 0;
+  background: transparent;
+  color: var(--ink);
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+.own textarea::placeholder { color: var(--ink-soft); opacity: 0.8; }
+.own small {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  color: var(--ink-soft);
+}
+
+.foot {
+  margin: 6rem 0 0 var(--indent);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 48rem) {
+  body { font-size: 1.125rem; }
+  .row a { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
+  .row time { padding-top: 0; }
+  .beam { width: 120vw; right: -34vw; gap: 1.1rem; }
+}
+]]></style>
+</head>
+<body>
+
+
+<div class="stage" id="stage" aria-hidden="true">
+  <div class="beam far"><i/><i/><i/><i/><i/><i/></div>
+  <div class="beam near"><i/><i/><i/><i/><i/><i/></div>
+  <div class="grain"></div>
+</div>
+<div class="page" id="app"></div>
+
+
+<div style='display:none'>
+<b:section class='main' id='main' showaddelement='no'>
+<b:widget id='Blog1' locked='true' title='Bài đăng trên blog' type='Blog' version='2'>
+<b:includable id='main'><!-- không hiển thị: trang tự dựng bằng script --></b:includable>
+</b:widget>
+</b:section>
+</div>
+<script>//<![CDATA[
+
+/*
+  Cách thêm bài: thêm một đối tượng vào ĐẦU mảng POSTS (bài mới nhất đứng trước).
+  - slug: chữ thường, không dấu, nối bằng dấu gạch ngang
+  - date: ngày đăng, ví dụ "13/10/2026"
+  - mach: "Chuyện thật" hoặc "Đất Thủ Tu Chân Ký"
+  - tags: các dấu để người đọc lọc, ví dụ ["Tâm Ma", "Học phí"]; để trống nếu không cần
+  - body: mỗi phần tử là một đoạn; thêm beat: true cho đoạn rất ngắn đổi nhịp
+  Đoạn đầu cũng là phần trích trên trang chủ, nên đoạn đầu phải có lực kéo.
+*/
+var POSTS = [
+  {
+    slug: "ngay-doanh-nhan-noi-so-hai",
+    date: "13/10/2026",
+    mach: "Chuyện thật",
+    tags: ["Tâm Ma"],
+    title: "Ngày Doanh nhân: nỗi sợ hãi khi phải lựa chọn",
+    body: [
+      { t: "Sáng nay, bần đạo ngồi thiền cùng anh em trong công ty. Xả thiền xong, mọi người đi làm. Bần đạo còn ngồi lại vài phút. Công ty không vì vừa ngồi thiền mà tự nhiên hết bài toán, nhưng đầu óc bớt ồn một chút. Và một cuộc họp cũ tự dưng quay lại." },
+      { t: "Khách hỏi về một phương án rất đẹp: “Bên em làm được không?”" },
+      { t: "Đội kỹ thuật nói: “Làm được anh. Nhưng rủi ro an toàn cao.” Khách nhìn bần đạo: “Nếu bên khác nhận làm thì sao?” Câu này làm bần đạo khựng lại." },
+      { t: "Thật ra bần đạo tiếc chứ. Tiếc hợp đồng. Tiếc công sức đã theo đuổi. Tiếc cả cảm giác sắp chốt được một việc lớn. Cuối tháng, bảng lương không tự ngồi thiền cùng mình." },
+      { t: "Tâm Ma bảo: “Thì nói làm được. Mình đã báo rủi ro rồi. Khách vẫn chọn mà. Mình đâu có lừa ai.” Nghe rất hợp lý." },
+      { t: "Bần đạo hỏi lại đội kỹ thuật: “Nếu làm, ai sẽ là người chịu phần rủi ro đó?” Một bạn đáp: “Anh em ở hiện trường.”" },
+      { t: "Bần đạo quay sang khách: “Nếu anh vẫn chọn cách này, bên em xin không nhận.” Khách không nói gì thêm. Cuộc họp kết thúc." },
+      { t: "Bần đạo không biết anh có tìm một đơn vị khác hay không. Chỉ biết từ lúc bước ra khỏi phòng, câu “nếu bên khác nhận làm thì sao?” cứ đi theo mình." },
+      { t: "Mấy ngày sau, bần đạo phỏng vấn một ứng viên." },
+      { t: "Bạn có năng lực. Công ty đang cần người. Bần đạo nói về công việc, cơ hội và những điều bạn có thể làm nếu vào đây." },
+      { t: "Bạn nghe xong rồi hỏi: “Công ty đang cần em giải quyết bài toán nào ưu tiên vậy anh?”" },
+      { t: "Tâm Ma lại nói: “Nói vừa vừa thôi. Đang tuyển người, không phải đang tổ chức thi tuyển chịu khổ. Kể hết nó thấy khó thì sao vào?”" },
+      { t: "Bần đạo nhìn hồ sơ của bạn. Chỉ cần nói thêm vài câu đẹp, có thể buổi phỏng vấn này sẽ có một cái gật đầu." },
+      { t: "Nhưng bần đạo nhớ đến người khách mấy hôm trước." },
+      { t: "Bần đạo nói: “Anh đang cần người giải bài toán này. Nguồn lực hiện tại mới có tới đây. Có những phần em sẽ phải tự tìm đường. Anh nói để em biết trước khi chọn.” Bạn im một lúc rồi nói: “Vậy để em suy nghĩ.”" },
+      { t: "Lại một câu “để em suy nghĩ”.", beat: true },
+      { t: "Bần đạo ngồi trong phòng họp, thấy nó giống hệt câu của người khách." },
+      { t: "Bần đạo không nói sai với cả hai người. Chỉ là nếu không nói phần còn lại, thì cái gật đầu của họ có thật sự là lựa chọn của họ không?" },
+      { t: "Ngày Doanh nhân năm nay, bần đạo không biết chúc gì cho mình. Chỉ thấy may là còn nhìn thấy cái vực thẳm nằm ở cuối một câu “dạ được”, khi mình vẫn chưa rơi xuống đó." }
+    ]
+  },
+  {
+    slug: "cai-do-nguoi-khac",
+    date: "07/10/2026",
+    mach: "Chuyện thật",
+    tags: ["Tâm Ma"],
+    title: "Cái dở người khác là… bần đạo nhớ dai lắm",
+    body: [
+      { t: "Bần đạo từng xem một video. Một người thầy viết lên bảng 10 phép nhân, chín phép đúng, một phép sai. Xong thầy quay xuống hỏi: “Các em thấy gì?”. Cả lớp chỉ ngay vào phép sai. Chẳng ai nói gì về chín phép đúng." },
+      { t: "Bần đạo xem xong gật gù. Ờ, cũng thâm. Rồi… lướt tiếp." },
+      { t: "Mấy hôm trước, ngồi xem lại công việc của một người đã làm với mình khá lâu, tự nhiên trong đầu bần đạo lôi ra đủ thứ. Cái này từng trễ. Chuyện kia làm chưa tới. Có việc nói mấy lần rồi vẫn bị lại. Mà mấy cái lỗi lặp đi lặp lại mới bực: “Trời đất, cái này nói hoài rồi mà?”" },
+      { t: "Nhưng nghĩ lại cũng hơi kỳ. Nếu bạn ấy dở như những gì bần đạo đang nhớ thì chắc đã chẳng làm với nhau tới giờ. Bao nhiêu việc vẫn giao, việc khó vẫn làm, lúc cần vẫn gánh. Vậy mà cứ tới lúc đánh giá hay tính giao thêm việc gì, mấy cái dở lại chen lên trước." },
+      { t: "“Khoan, cái này lần trước bạn ấy bị rồi.” “Chỗ này bạn ấy hay dính lắm.” “Giao nữa có khi lại ăn đủ…”" },
+      { t: "Khổ cái, toàn chuyện có thật. Thế mới mệt. Tâm Ma chẳng cần bịa thêm câu nào, cứ lôi chuyện cũ ra là bần đạo thấy mình có lý ngay." },
+      { t: "Đang rất có lý thì tự nhiên nhớ tới ông thầy hôm nọ." },
+      { t: "CHÍN ĐÚNG. MỘT SAI." },
+      { t: "Bần đạo thử ngồi nhớ mấy năm qua bạn ấy đã làm tốt những gì. Có chứ. Cũng nhiều." },
+      { t: "Nhưng phải ngồi nghĩ mới ra.", beat: true },
+      { t: "Còn mấy cái dở thì thôi rồi. Tâm Ma mở đúng thư mục, đúng file, có cái mấy năm rồi vẫn còn nguyên, chẳng cần tìm." },
+      { t: "Bần đạo ngồi đó một lúc. Lại nhớ cái bảng của ông thầy." },
+      { t: "Chín phép đúng. Một phép sai." },
+      { t: "Tự nhiên hai chữ chạy ngang qua đầu: HẮC HÓA." },
+      { t: "Bần đạo đang định nghĩ tới người khác.", beat: true },
+      { t: "Mà thôi.", beat: true }
+    ]
+  },
+  {
+    slug: "benh-an-mat-tien",
+    date: "09/09/2026",
+    mach: "Chuyện thật",
+    tags: ["Học phí"],
+    title: "Bệnh án: không chịu học cho đến khi… mất tiền",
+    body: [
+      { t: "Bần đạo đi học từ bé đến lớn, nhưng mắc một bệnh mãn tính: học mà không biết học để làm gì. Chữ vào khá nhiều. Công lực tăng bao nhiêu thì chưa đo được." },
+      { t: "Sau này ra đời gặp một vị danh y tên Cuộc Đời Chân Nhân. Phác đồ của ngài khá đơn giản: nói không nghe thì cho sai. Sai chưa tỉnh thì cho mất tiền. Mất tiền vẫn chưa tỉnh thì… cho trả hậu quả thêm vài năm." },
+      { t: "Bần đạo thuộc nhóm kháng thuốc khá tốt. Có vài bài học kinh doanh trước đây, đến giờ vẫn đang đóng học phí. Tính lạc quan thì còn khoảng 10–15 năm nữa mới thanh toán hết liệu trình." },
+      { t: "Dạo này bệnh nhân bắt đầu hơi rén, nên thử đổi phác đồ: học trước khi phát bệnh." },
+      { t: "Vừa rồi bần đạo đi học SLII. Ngồi dưới thấy hiểu lắm. Về công ty, đứng lên dạy lại cho anh em mới phát hiện:" },
+      { t: "À…", beat: true },
+      { t: "Hóa ra lúc đó mình chỉ hiểu… thầy đang nói gì." },
+      { t: "Có những chỗ tưởng thuộc rồi, nói ra lại vấp. Có những chữ tưởng cả phòng hiểu giống nhau, hỏi kỹ mới thấy mỗi đạo hữu đang luyện một môn. “Chủ động” một kiểu. “Trao quyền” một kiểu. “Chịu trách nhiệm” lại thêm vài kiểu. Suýt nữa thành đại hội đấu pháp." },
+      { t: "Thôi thì học tiếp. Vì bần đạo đang cố cai một phương pháp học cực kỳ hiệu quả: mất tiền → đau → ngộ ra." },
+      { t: "Cuộc Đời Chân Nhân dạy rất chắc. Chỉ có điều ngài không báo học phí trước." },
+      { t: "Mà có những bài…" },
+      { t: "học một ngày,", beat: true },
+      { t: "trả góp mười năm.", beat: true }
+    ]
+  },
+  {
+    slug: "cang-tin-nhan-vien-cang-that-vong",
+    date: "07/08/2026",
+    mach: "Chuyện thật",
+    tags: [],
+    title: "Tại sao càng tin nhân viên, bần đạo lại càng… thất vọng?",
+    body: [
+      { t: "Chiều nay bần đạo có hai buổi làm việc với hai nhân sự. Hai vị trí khác nhau. Hai câu chuyện khác nhau. Nhưng nghe một hồi lại thấy hơi quen." },
+      { t: "Hình như bệnh cũ của mình." },
+      { t: "Có một thời gian Đất Thủ tuyển khá nhiều vị trí quản lý. Người vào rồi người ra. Có người không qua thử việc. Có người đi được một đoạn rồi dừng. Bần đạo lúc ấy khá khó hiểu. “Ủa, đã từng làm quản lý rồi mà?” “Việc này cũng phải hướng dẫn sao?” “Sao cái này cũng không biết?”" },
+      { t: "Mình tin một nguyên tắc nghe rất hay: “Đã tin thì phải giao.” Thế là giao thật. Đây là mục tiêu. Đây là kết quả. Anh tin em. Triển khai đi. Trong đầu bần đạo gọi đó là trao quyền." },
+      { t: "Rồi vài ngày sau bắt đầu: “Tới đâu rồi em?” “Dạ, em đang làm.” “Đang… là đang tới đâu?”" },
+      { t: "À.", beat: true },
+      { t: "Lão Quản Lý ở Hồi 4 bắt đầu nhập xác." },
+      { t: "Có việc mình nghĩ ba ngày là xong, một tuần sau vẫn còn. Có việc mình tưởng đã nói rất rõ, người nhận lại chẳng biết bắt đầu từ đâu. Bần đạo bắt đầu thất vọng. “Sao việc này cũng không biết làm?”" },
+      { t: "Mãi sau này, có lần đang hướng dẫn lại một việc, mình chợt hỏi: “Cái này trước giờ có ai nói với em chưa?” “Dạ chưa.” “Còn cái này?” “Cũng chưa anh.” “Vậy sao em biết phải làm thế này?”" },
+      { t: "Bạn ấy nhìn mình. Bần đạo nhìn bạn ấy. Không khí bắt đầu có mùi giác ngộ." },
+      { t: "Hóa ra có những thứ mình làm mấy năm nên tưởng nó là kiến thức phổ thông. Người mới vào chắc… tự tải về được. Bối cảnh chưa nói. Kỳ vọng chưa làm rõ. Cách mình muốn phối hợp cũng chưa nói. Xong rồi bần đạo ngồi chờ người ta làm đúng cái mình đang nghĩ trong đầu." },
+      { t: "Công pháp này xem ra còn khó hơn Tha Tâm Thông. Vì lần này mình yêu cầu nhân viên phải đọc được tâm của CEO." },
+      { t: "Chiều nay, sau hai cuộc nói chuyện, bệnh cũ lại hơi tái phát. Bần đạo đang định nghĩ: “Sao cái này cũng phải nói?” May mà kịp dừng lại." },
+      { t: "Ừ.", beat: true },
+      { t: "Có khi phải nói thật. Vì…" },
+      { t: "mình chưa từng nói.", beat: true }
+    ]
+  },
+  {
+    slug: "anh-tin-em-nhung-khong-chon-em",
+    date: "03/08/2026",
+    mach: "Chuyện thật",
+    tags: [],
+    title: "Anh tin em, nhưng anh không chọn em",
+    body: [
+      { t: "5 năm trước, có một buổi chiều mình vẫn nhớ. Ngồi đối diện là một người anh, tách trà giữa hai người cứ nguội dần. Anh nói sẽ không hợp tác với mình. Gọn vậy thôi. Mình về, trong đầu lúc ấy chỉ nghĩ: chắc anh chưa đủ tin mình." },
+      { t: "Mấy năm sau, hai anh em lại ngồi cà phê. Chẳng bàn công việc gì, anh bỗng nói: “Hồi đó anh không chọn em, không phải vì anh không tin em đâu.”" },
+      { t: "Mình im. Câu này hình như đã đợi 5 năm rồi." },
+      { t: "Anh nói anh tin mình về con người. Nhiệt tình có, cầu thị có. Nhưng việc ấy quan trọng với anh quá, và lúc đó… mình chưa đủ sức làm." },
+      { t: "Nghe cũng hơi đau. Nhưng lạ là 5 năm sau nghe lại, mình không còn thấy khó chịu như trước. Có lẽ vì lúc này bần đạo đã đổi ghế. Ngày trước là người ngồi chờ được chọn. Bây giờ lại thành người phải chọn." },
+      { t: "Và có những lúc mình gặp một người rất tốt, rất trách nhiệm, rất muốn làm. Mình cũng rất quý. Nhưng tới lúc đặt họ vào một vị trí quan trọng, tay lại dừng." },
+      { t: "Ngày xưa mình từng nghĩ: “Đã tin thì phải giao.” Bây giờ có lúc định nói câu ấy, mình lại nhớ tới tách trà năm nào." },
+      { t: "Có lần một bạn hỏi gần như đúng điều mình từng muốn hỏi: “Anh chưa tin em à?” Bần đạo suýt trả lời ngay. Rồi khựng lại." },
+      { t: "“Anh tin em. Nhưng việc này, anh chưa dám chọn em.”" },
+      { t: "Hai câu đứng cạnh nhau nghe hơi trái khoáy. 5 năm trước mình cũng không hiểu. Thậm chí người anh năm ấy chỉ nói “không”, còn phần “anh ấy không tin mình” là do bần đạo tự điền vào." },
+      { t: "Tha Tâm Thông luyện chưa thành mà ngày ấy đã dùng khá tự tin. Mất 5 năm mới biết… dịch sai." },
+      { t: "Bây giờ tới lượt mình ngồi ở phía bên kia bàn. Mới thấy không chọn một người đôi khi cũng là một câu khá khó nói." },
+      { t: "Người anh năm ấy xem ra công lực cao hơn mình một cảnh giới. Ít nhất anh dám không chọn mình." },
+      { t: "Còn mình lúc đó…" },
+      { t: "chỉ chăm chăm muốn được chọn.", beat: true }
+    ]
+  },
+  {
+    slug: "ca-khong-thay-nuoc",
+    date: "25/03/2026",
+    mach: "Chuyện thật",
+    tags: [],
+    title: "Cá không thấy nước",
+    body: [
+      { t: "Hồi cấp 3, mình đi học vì bố mẹ bắt. Không phản đối. Cũng không có khát vọng phải đứng đầu. Chỉ có một điều mình muốn… đừng bị thua ai, đừng bị nhắc nhở, đừng bị mời phụ huynh." },
+      { t: "Đi làm những năm đầu, mình cũng vậy. Không xuất sắc nhất. Không kém nhất. Cứ ở giữa, đủ để sếp đừng để ý. Mình từng nghĩ đó là bình thường." },
+      { t: "Bây giờ, sau 30 năm và một thất bại, mình biết một con cá sống cả đời trong nước thì không bao giờ thấy được nước. Nó tưởng nước là không khí. Tưởng đó là tất cả." },
+      { t: "Cả đời mình bơi trong một câu nói thầm: “Đừng bị thua. Đủ thôi là được.”" },
+      { t: "Cấp 3, sợ bị mời phụ huynh. Đi làm, sợ bị sếp đánh giá. Sống, sợ bị người ta thấy mình kém. Mỗi giai đoạn cuộc đời, cùng một câu. Chỉ đổi sân khấu thôi." },
+      { t: "Mình không cố ý chọn câu nói thầm này. Nó tự đến, như nỗi sợ ai cũng có. Mình chỉ không thấy còn cách nào khác." },
+      { t: "2016, mình mở công ty. Hai năm đầu chạy trong vùng quen. Năm 2018, mình bước vào một dự án lớn hơn vùng quen của mình. Phức tạp hơn. Đụng những thứ mình chưa từng làm. Đến 2019, mình thất bại. Nặng. Phải bồi thường hợp đồng. Tổn thất tài chính rất lớn." },
+      { t: "Trong những đêm sau đó, có một câu hỏi mình không tránh được: “Vì sao tôi đến đây?” Không phải đến chỗ thất bại này. Là đến chỗ tôi đã đứng cả đời, chỗ vừa đủ, không hơn." },
+      { t: "Câu trả lời đau nhất mà mình thấy: tôi không thất bại vì làm sai. Tôi thất bại vì lần đầu tiên có một dự án quá lớn cho cách sống “vừa đủ” của tôi." },
+      { t: "Khi cá bị quăng khỏi nước, lần đầu tiên nó thấy nước. Vì lần đầu tiên nó không có nước để bơi." },
+      { t: "Trước 2018, mình từng có lúc thành công, quy mô tốt, làm cùng anh em, có lợi nhuận. Mình tưởng đó là bằng chứng mình đúng. Bây giờ mình biết: thành công đó không phải vì mình đúng. Là vì bể nước cũ vẫn còn vừa với mình. Cá bơi tốt trong bể quen, không có nghĩa nó biết mình đang ở trong nước." },
+      { t: "Sau thất bại, mình tiếp tục với ngành kiến trúc xây dựng, gần với chuyên ngành thiết kế nội thất mình đã học. Hai năm đầu công ty hoạt động không có triết lý. Mình làm vì phải làm. Cùng cách sống cũ, chỉ đổi nghề mới." },
+      { t: "Cho đến khi đọc cuốn sách của Inamori Kazuo, mình tìm được câu cho công ty: phục vụ bằng sự tử tế. Có triết lý. Hết hai năm vô triết lý." },
+      { t: "Nhưng ba năm sau, một bạn nhân viên hỏi: “Tầm nhìn sứ mệnh công ty mình là gì?” Mình ngồi với câu hỏi đó. Không trả lời được. Câu hỏi quá lớn. Hay nói thật hơn, kiến thức mình không đủ để trả lời. Cuối cùng mình phải thuê chuyên gia bên ngoài giúp tìm câu trả lời." },
+      { t: "Một CEO 40 tuổi, làm doanh nghiệp nhiều năm, đã đi thiền 11 năm, vẫn phải thuê người khác để thấy điều mình muốn cho công ty mình." },
+      { t: "Đây là điều khó nói nhất với mình hôm nay: 11 năm đi thiền không cho mình thấy được nước." },
+      { t: "Thiền dạy mình quan sát những phản ứng nhỏ trong tâm, bực, vui, sợ. Nhưng thiền không tự động cho mình thấy cách sống cả đời mình. Cái lớn quá. Cái mình đang sống bên trong. Cá đi thiền 11 năm vẫn là cá. Vẫn không tự thấy được nước. Phải có người đứng ngoài bể chỉ vào, “đó, anh đang ở trong cái đó”, cá mới thấy." },
+      { t: "Hai năm mình né câu hỏi tầm nhìn không phải vì quên. Mình né bằng cách nói “câu này chung chung quá”. Bằng cách “để khi nào rảnh sẽ nghĩ”. Bằng cách làm những việc nhỏ trước. Cá bận bơi. Cá không có thời gian thấy nước." },
+      { t: "Hôm nay mình có triết lý từ Inamori. Có tầm nhìn sứ mệnh nhờ chuyên gia. Có 11 năm đi thiền. Có cả thất bại 2018 và 2019 dạy mình thấy. Nhưng có những đêm khó, sau cuộc họp căng, sau quyết định lớn, sau khi khách hàng từ chối, tâm vẫn nói: “Đủ thôi là được. Đừng cố quá.”" },
+      { t: "Câu nói thầm cũ vẫn còn. Sau tất cả." },
+      { t: "Khác là, bây giờ mình nghe được nó. Trước đây nó nói, mình tin liền. Bây giờ nó nói, có một khoảng trống nhỏ trước khi mình tin. Trong khoảng trống đó, mình kịp hỏi: “Đây là tâm khôn ngoan, hay là thói cũ đang chảy?”" },
+      { t: "Đa số lần mình không phân biệt được. Đôi khi phân biệt được. Đó là tất cả khác biệt." },
+      { t: "Cá thấy nước rồi cũng không thoát ra khỏi nước được. Cá vẫn phải bơi trong nước. Khác là cá biết mình đang bơi. Cách sống cũ không biến mất sau khi mình thấy. Chỉ bớt dẫn dắt mình hơn. Đó đã là tất cả những gì 11 năm tu cho mình, và mình đã chấp nhận điều đó." },
+      { t: "Câu hỏi mình muốn để lại, không phải về thiền, không phải về thất bại:" },
+      { t: "Có cái gì đang chảy quanh bạn, mà bạn tưởng là không khí?", beat: true },
+      { t: "Có thể là một câu nói thầm cũ. Có thể là một nỗi sợ quen đến mức không còn thấy nó là sợ. Có thể là một cách sống an toàn quen tới mức bạn nghĩ đó là chính bạn." },
+      { t: "30 năm cuộc đời mình là không thấy nước. Mình vấp một thất bại lớn để thấy. Bạn không cần đến mức đó để thấy. Có thể chỉ cần một câu hỏi đặt đúng lúc." }
+    ]
+  },
+  {
+    slug: "tu-tin-hay-nga-man",
+    date: "18/06/2025",
+    mach: "Chuyện thật",
+    tags: [],
+    title: "Tự tin hay ngã mạn: nhìn lại mình sau 5 năm, từ một bài viết cũ",
+    body: [
+      { t: "Không biết mọi người có bao giờ tình cờ đọc lại một đoạn nhật ký, một status cũ, hay một khoảnh khắc mà ngày xưa mình từng rất tự hào, rồi bỗng thấy… mắc cười?" },
+      { t: "Thấy sao lúc đó mình… ngây thơ quá. Thấy cũng chân thành thiệt, nhưng có gì đó hơi nông nổi. Có chút gì gọi là tự tin non trẻ, hay nếu nói thẳng ra, là ngã mạn mà lúc đó chưa thấy." },
+      { t: "Sáng nay, tôi cũng rơi vào đúng một khoảnh khắc như vậy. Vô tình đọc lại bài viết cách đây 5 năm, sau chuyến tham quan văn phòng VNG. Tựa đề bài viết lúc đó là: “Có không biết hưởng… Sáng Trần vô minh!”" },
+      { t: "Lúc ấy, tôi tin rằng mình đang rất “biết khiêm tốn”. Tự nhủ rằng đội mình chưa bằng người ta, nhưng cũng không kém. Tự tin rằng anh em mình cũng rất giỏi, chỉ là… chưa đủ điều kiện. Nghe có vẻ hợp lý. Nghe cũng giống như một cách động viên tích cực." },
+      { t: "Nhưng sáng nay đọc lại… tôi thấy ngại. Vì tôi nhận ra phiên bản đó của mình có phần… ngã mạn tinh vi." },
+      { t: "Ngã mạn không phải lúc nào cũng là huênh hoang. Mà là khi trong đầu mình có một tiếng nói thì thầm: “Người ta giỏi, nhưng tụi mình cũng đâu thua kém gì…” Nó không ồn ào. Nó không khoe khoang. Nhưng nó là một lớp phòng vệ rất khéo của cái tôi. Một sự tự tin mà chưa đủ chín." },
+      { t: "Bây giờ, khi có dịp bước vào một môi trường tương tự, tôi không còn thấy cần so sánh. Không còn nghĩ “tụi mình cũng làm được vậy”. Chỉ còn thấy rõ: mình còn nhiều điều phải học. Và thật may mắn khi vẫn còn cơ hội để tiếp tục học." },
+      { t: "Tự tin thật sự, có lẽ là khi mình dám thấy rõ sự chưa đủ của bản thân, mà lòng vẫn yên. Không phải để tự trách. Cũng không phải để chứng minh. Chỉ là để tiếp tục sống tử tế và học mỗi ngày." },
+      { t: "Tôi nhớ một lời dạy của Thiền sư Ajahn Chah: “Người trí thì giống như mặt đất. Ai đổ sạch hay rác rưởi gì cũng tiếp nhận được, rồi tự chuyển hóa. Còn người ngã mạn, chỉ cần một lời trái ý… là bật lại.” Cầu mong mình học được cách làm đất. Để lắng. Để nhận. Và để không ngừng chuyển hóa." },
+      { t: "Và rồi, viết tới đây… tôi tự hỏi: “Nếu một người đang cố gắng không ngã mạn, thì đó có phải là một dạng ngã mạn khác không?”" },
+      { t: "Tôi không biết câu trả lời. Chỉ biết… chắc mình vẫn còn phải học tiếp." }
+    ]
+  }
+];
+
+var app = document.getElementById("app");
+var stage = document.getElementById("stage");
+var activeTag = null;
+
+function el(tag, cls, text) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function readTime(post) {
+  var words = post.body.map(function (b) { return b.t; }).join(" ").split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200)) + " phút đọc";
+}
+
+function topBar() {
+  var bar = el("div", "top");
+  var home = el("a", null, "Sáng Trần");
+  home.href = "#";
+  bar.appendChild(home);
+  var about = el("a", null, "Về Sáng");
+  about.href = "#ve-sang";
+  bar.appendChild(about);
+  return bar;
+}
+
+/* Trang "Về Sáng". photo: đặt đường dẫn hoặc data URI ảnh thật vào đây khi có; để trống thì không hiện ảnh. */
+var ABOUT = {
+  photo: "https://sangtran-create.github.io/sangtran-viet/photo.jpg",
+  paras: [
+    "Mình làm nhà ở Thủ Dầu Một. Quê Nghệ An. Năm 2016 mở Đất Thủ, đến 2019 vấp một dự án lớn hơn sức mình, rồi đi tiếp bằng nghề kiến trúc và xây dựng.",
+    "Ngồi thiền từ 2015, chưa lúc nào dám nói là giỏi.",
+    "Blog này là chỗ mình kể lại những chuyện gặp khi làm nghề và làm người. Kể để tự soi. Có thể anh chị cũng từng như vậy."
+  ]
+};
+
+function renderAbout() {
+  app.textContent = "";
+  app.appendChild(topBar());
+  var back = el("a", "back", "← Tất cả bài viết");
+  back.href = "#";
+  app.appendChild(back);
+  var art = el("article", "post");
+  art.appendChild(el("h1", "cast", "Về Sáng"));
+  if (ABOUT.photo) {
+    var img = el("img");
+    img.src = ABOUT.photo;
+    img.alt = "Sáng Trần";
+    img.onerror = function () { img.remove(); };
+    img.style.cssText = "width:100%;max-width:16rem;height:auto;display:block;margin:0 0 2rem;";
+    art.appendChild(img);
+  }
+  var body = el("div", "body");
+  ABOUT.paras.forEach(function (t) { body.appendChild(el("p", null, t)); });
+  art.appendChild(body);
+  app.appendChild(art);
+  app.appendChild(footer());
+  document.title = "Về Sáng | Sáng Trần Viết";
+  window.scrollTo(0, 0);
+  drift();
+}
+
+function footer() {
+  return el("div", "foot", "Soi mình thấy người. Soi người thấy mình.");
+}
+
+function allTags() {
+  var seen = [];
+  POSTS.forEach(function (p) {
+    (p.tags || []).forEach(function (t) { if (seen.indexOf(t) < 0) seen.push(t); });
+  });
+  return seen;
+}
+
+function renderHome() {
+  app.textContent = "";
+  app.appendChild(topBar());
+
+  var hero = el("section", "hero");
+  hero.appendChild(el("h1", "cast", "Những chuyện gặp khi làm nghề và làm người, kể lại để tự soi."));
+  app.appendChild(hero);
+
+  var visible = POSTS.filter(function (p) {
+    return !activeTag || (p.tags || []).indexOf(activeTag) >= 0;
+  });
+
+  if (visible.length) {
+    var first = visible[0];
+    var lead = el("section", "lead");
+    var a = el("a");
+    a.href = "#" + first.slug;
+    a.appendChild(el("p", "label", first.date ? "Bài mới · " + first.date : "Bài mới"));
+    a.appendChild(el("h2", "cast", first.title));
+    a.appendChild(el("p", null, first.body[0].t));
+    a.appendChild(el("span", "more", "Đọc bài"));
+    lead.appendChild(a);
+    app.appendChild(lead);
+  }
+
+  var tags = allTags();
+  if (tags.length > 1) {
+    var filters = el("div", "filters");
+    var all = el("button", "chip", "Tất cả");
+    all.type = "button";
+    all.setAttribute("aria-pressed", String(!activeTag));
+    all.addEventListener("click", function () { activeTag = null; renderHome(); });
+    filters.appendChild(all);
+    tags.forEach(function (t) {
+      var c = el("button", "chip", t);
+      c.type = "button";
+      c.setAttribute("aria-pressed", String(activeTag === t));
+      c.addEventListener("click", function () { activeTag = t; renderHome(); });
+      filters.appendChild(c);
+    });
+    app.appendChild(filters);
+  }
+
+  var rest = visible.slice(1);
+  if (rest.length) {
+    var list = el("ul", "list");
+    rest.forEach(function (p) {
+      var li = el("li", "row");
+      var a2 = el("a");
+      a2.href = "#" + p.slug;
+      a2.appendChild(el("time", null, p.date || "·"));
+      a2.appendChild(el("h3", null, p.title));
+      li.appendChild(a2);
+      list.appendChild(li);
+    });
+    app.appendChild(list);
+  }
+
+  if (POSTS.length === 1 && POSTS[0].mach === "Bài mẫu") {
+    app.appendChild(el("p", "note", "Blog đang chờ bài đầu tiên. Bài ở trên là bài mẫu để xem cách trình bày, chưa phải chuyện thật."));
+  }
+
+  app.appendChild(footer());
+  document.title = "Sáng Trần Viết";
+  window.scrollTo(0, 0);
+  drift();
+}
+
+function loadNote(slug) {
+  try { return localStorage.getItem("note:" + slug) || ""; } catch (e) { return ""; }
+}
+function saveNote(slug, value) {
+  try { localStorage.setItem("note:" + slug, value); } catch (e) { /* chỉ là tiện ích, bỏ qua */ }
+}
+
+function renderPost(post) {
+  app.textContent = "";
+  app.appendChild(topBar());
+
+  var back = el("a", "back", "← Tất cả bài viết");
+  back.href = "#";
+  app.appendChild(back);
+
+  var art = el("article", "post");
+  art.appendChild(el("p", "meta", (post.date ? post.date + "  ·  " : "") + readTime(post) + "  ·  " + post.mach));
+  art.appendChild(el("h1", "cast", post.title));
+
+  var body = el("div", "body");
+  post.body.forEach(function (b) {
+    body.appendChild(el("p", b.beat ? "beat" : null, b.t));
+  });
+  art.appendChild(body);
+
+  var own = el("section", "own");
+  own.appendChild(el("p", "label", "Ghi cho riêng bạn"));
+  var ta = el("textarea");
+  ta.id = "own-note";
+  ta.setAttribute("aria-label", "Ghi chú riêng của bạn");
+  ta.placeholder = "Điều bạn nhận ra khi đọc, nếu có.";
+  ta.value = loadNote(post.slug);
+  ta.addEventListener("input", function () { saveNote(post.slug, ta.value); });
+  own.appendChild(ta);
+  own.appendChild(el("small", null, "Chỉ lưu trong trình duyệt này, không gửi đi đâu."));
+  art.appendChild(own);
+  app.appendChild(art);
+
+  app.appendChild(footer());
+  document.title = post.title + " | Sáng Trần Viết";
+  window.scrollTo(0, 0);
+  drift();
+}
+
+/* Ánh sáng trôi: lớp gần trôi nhanh hơn lớp xa */
+var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var ticking = false;
+function drift() {
+  if (reduce) return;
+  var y = window.scrollY || 0;
+  stage.style.setProperty("--bx", (-y * 0.03).toFixed(1) + "px");
+  stage.style.setProperty("--by", (-y * 0.07).toFixed(1) + "px");
+  stage.style.setProperty("--bx2", (-y * 0.015).toFixed(1) + "px");
+  stage.style.setProperty("--by2", (-y * 0.035).toFixed(1) + "px");
+}
+window.addEventListener("scroll", function () {
+  if (ticking) return;
+  ticking = true;
+  window.requestAnimationFrame(function () { ticking = false; drift(); });
+}, { passive: true });
+
+function route() {
+  var slug = (location.hash || "").replace(/^#/, "");
+  var found = POSTS.filter(function (p) { return p.slug === slug; })[0];
+  if (slug === "ve-sang") renderAbout();
+  else if (found) renderPost(found); else renderHome();
+}
+
+window.addEventListener("hashchange", route);
+route();
+
+//]]></script>
+</body>
+</html>
