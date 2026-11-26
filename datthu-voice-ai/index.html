@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Đất Thủ Voice AI</title>
+  <meta name="description" content="Ghi âm cuộc họp, tự lưu Google Drive, phân tích bằng Gemini. Tối ưu cho máy đọc sách E-Ink.">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="color-scheme" content="only light">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;600;700&display=swap&subset=vietnamese">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">ĐẤT THỦ VOICE AI</h1>
+    <button id="btnSettings" class="btn btn-small" type="button">CÀI ĐẶT</button>
+  </header>
+
+  <main>
+    <section class="status" aria-label="Trạng thái">
+      <p><span class="label">DRIVE</span><span id="stDrive">ĐANG KIỂM TRA</span></p>
+      <p><span class="label">MẠNG</span><span id="stNet">ĐANG KIỂM TRA</span></p>
+      <p><span class="label">MÀN HÌNH</span><span id="stWake">TỰ TẮT THEO MÁY</span></p>
+    </section>
+
+    <div id="updateBar" class="notice" hidden>
+      <p>Có bản cập nhật mới của ứng dụng.</p>
+      <div class="row"><button id="btnUpdate" class="btn btn-small" type="button">CẬP NHẬT NGAY</button></div>
+    </div>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden>
+      <p id="noticeText"></p>
+      <textarea id="noticeCopy" class="copy-box" readonly hidden aria-label="Câu lệnh để sao chép thủ công"></textarea>
+      <div class="row">
+        <a id="noticeLink" class="btn btn-small" href="#" target="_blank" rel="noopener" hidden>MỞ GEMINI</a>
+        <button id="noticeClose" class="btn btn-small" type="button">ĐÓNG</button>
+      </div>
+    </div>
+
+    <button id="btnConnect" class="btn btn-wide" type="button" hidden>KẾT NỐI GOOGLE DRIVE</button>
+
+    <section id="uploadPanel" class="panel" hidden aria-label="Tiến trình tải lên">
+      <h2>ĐANG LƯU LÊN GOOGLE DRIVE</h2>
+      <p id="upName" class="filename"></p>
+      <div id="upBar" class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="upFill" class="progress-fill"></div>
+      </div>
+      <p id="upText" class="progress-text">0%</p>
+      <p id="upStep" class="hint"></p>
+    </section>
+
+    <section id="analysisPanel" class="panel" hidden aria-label="Phân tích bằng Gemini">
+      <h2>ĐÃ LƯU LÊN DRIVE</h2>
+      <p id="anName" class="filename"></p>
+      <p id="anMeta"></p>
+      <a id="anDriveLink" class="link" href="#" target="_blank" rel="noopener">Mở file trên Google Drive</a>
+      <h3>CHỌN KỊCH BẢN PHÂN TÍCH</h3>
+      <div id="anButtons" class="stack"></div>
+      <p class="hint">Bấm một nút: lệnh được sao chép, Gemini mở ra. Trong Gemini bấm dấu (+) → Drive → chọn file trên rồi dán lệnh.</p>
+    </section>
+
+    <section id="recorderPanel" class="panel" aria-label="Ghi âm">
+      <p id="timer" class="timer" aria-live="off">00:00:00</p>
+      <p id="micState" class="mic">MIC: CHƯA GHI</p>
+      <p id="lengthWarn" class="warn" hidden></p>
+      <button id="btnStart" class="btn btn-primary btn-hero" type="button">BẮT ĐẦU GHI ÂM</button>
+      <div id="recControls" class="row" hidden>
+        <button id="btnPause" class="btn btn-big" type="button">TẠM DỪNG</button>
+        <button id="btnStop" class="btn btn-primary btn-big" type="button">KẾT THÚC &amp; LƯU DRIVE</button>
+      </div>
+      <p class="hint">Thông báo cho người dự họp trước khi ghi âm.</p>
+    </section>
+
+    <section id="queuePanel" class="panel" hidden aria-label="Bản ghi chưa lên Drive">
+      <h2>CHƯA LÊN DRIVE (<span id="queueCount">0</span>)</h2>
+      <p class="hint">Bản ghi được giữ trong máy đến khi tải lên Drive thành công.</p>
+      <button id="btnRetryAll" class="btn btn-wide" type="button">TẢI LÊN TẤT CẢ</button>
+      <ul id="queueList" class="list"></ul>
+    </section>
+
+    <section id="historyPanel" class="panel" hidden aria-label="Đã lưu gần đây">
+      <h2>ĐÃ LƯU GẦN ĐÂY</h2>
+      <ul id="historyList" class="list"></ul>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Phiên bản <span id="appVersion"></span> · Thư mục Drive: DatThu_Meeting_Records</p>
+  </footer>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <form id="settingsForm" novalidate>
+      <div class="dialog-head">
+        <h2 id="settingsTitle">CÀI ĐẶT</h2>
+        <button id="btnCloseSettings" class="btn btn-small" type="button">ĐÓNG</button>
+      </div>
+
+      <label for="setClientId">Google Client ID</label>
+      <input id="setClientId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ví dụ: 1234-abcd.apps.googleusercontent.com">
+      <p id="errClientId" class="field-error" hidden></p>
+
+      <label for="setGemini">Đường dẫn Gemini hoặc Gem của công ty</label>
+      <input id="setGemini" type="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <p id="errGemini" class="field-error" hidden></p>
+
+      <fieldset>
+        <legend>MẪU CÂU LỆNH</legend>
+        <p class="hint">Dùng được {TEN_FILE}, {NGAY_GIO}, {THOI_LUONG}, {THU_MUC}: ứng dụng tự điền khi sao chép.</p>
+        <div class="tpl">
+          <label for="tplName0">Mẫu 1 · Tên nút</label>
+          <input id="tplName0" type="text">
+          <label for="tplText0">Mẫu 1 · Câu lệnh</label>
+          <textarea id="tplText0" rows="9"></textarea>
+          <p id="errTpl0" class="field-error" hidden></p>
+        </div>
+        <div class="tpl">
+          <label for="tplName1">Mẫu 2 · Tên nút</label>
+          <input id="tplName1" type="text">
+          <label for="tplText1">Mẫu 2 · Câu lệnh</label>
+          <textarea id="tplText1" rows="9"></textarea>
+          <p id="errTpl1" class="field-error" hidden></p>
+        </div>
+        <div class="tpl">
+          <label for="tplName2">Mẫu 3 · Tên nút</label>
+          <input id="tplName2" type="text">
+          <label for="tplText2">Mẫu 3 · Câu lệnh</label>
+          <textarea id="tplText2" rows="9"></textarea>
+          <p id="errTpl2" class="field-error" hidden></p>
+        </div>
+        <button id="btnResetTemplates" class="btn btn-small" type="button">ĐIỀN LẠI 3 MẪU MẶC ĐỊNH</button>
+      </fieldset>
+
+      <label for="setFormat">Định dạng ghi âm</label>
+      <select id="setFormat">
+        <option value="auto">Tự động (ưu tiên M4A)</option>
+        <option value="webm">WebM</option>
+      </select>
+      <p id="formatSupport" class="hint"></p>
+
+      <label for="setWarn">Nhắc khi ghi quá (phút)</label>
+      <input id="setWarn" type="number" min="1" max="1440" step="1" inputmode="numeric">
+      <p class="hint">Đặt bằng giới hạn âm thanh của gói Gemini đang dùng.</p>
+      <p id="errWarn" class="field-error" hidden></p>
+
+      <div class="row dialog-actions">
+        <button id="btnSaveSettings" class="btn btn-primary btn-big" type="submit">LƯU CÀI ĐẶT</button>
+      </div>
+
+      <hr>
+      <p id="accountLine" class="hint"></p>
+      <button id="btnSignOut" class="btn btn-small" type="button">NGẮT KẾT NỐI GOOGLE</button>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDialog" aria-labelledby="confirmText">
+    <p id="confirmText" class="confirm-text"></p>
+    <div class="row">
+      <button id="confirmYes" class="btn btn-primary btn-big" type="button">XÓA</button>
+      <button id="confirmNo" class="btn btn-big" type="button">HỦY</button>
+    </div>
+  </dialog>
+</body>
+</html>
